@@ -1,4 +1,5 @@
 require("dotenv").config()
+
 const express = require("express")
 const cors = require("cors")
 
@@ -7,37 +8,44 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-app.get("/",(req,res)=>{
-    res.send("server running")
-})
+let weatherData = null
 
-app.get("/api/weather", async (req,res)=>{
-
+async function updateWeather(){
+    
     try{
-        const apikey = process.env.API_KEY
-        console.log(process.env.API_KEY)
+        const apiKey = process.env.API_KEY
+
         const city = "Nagoya"
 
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apikey}&units=metric&lang=ja`;
+        const url =
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=ja`
 
-        const responce = await fetch(url)
+        const response = await fetch(url)
 
-        const data = await responce.json()
+        const data = await response.json()
 
-        console.log(data)
-
-        res.json({
+        weatherData = {
             weather: data.weather[0].description,
-            temp:data.main.temp,
-            humidity:data.main.humidity
-        })
+            temp: data.main.temp,
+            humidity: data.main.humidity
+        }
+
+        console.log("weather updated")
 
     }catch(error){
-        res.status(500).json({
-            error: "取得失敗"
-        })
+
+        console.log(error)
+
     }
 
+}
+
+updateWeather()
+
+setInterval(updateWeather,600000)
+
+app.get("/api/weather",(req,res)=>{
+    res.json(weatherData)
 })
 
 app.listen(3000,()=>{
