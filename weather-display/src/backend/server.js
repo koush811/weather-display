@@ -24,10 +24,16 @@ async function updateWeather(){
 
         const data = await response.json()
 
+        const temp = data.main.temp
+        const humidity = data.main.humidity
+
+        const wbgt = 0.725 * temp + 0.0368 * humidity + 3.94
+
         weatherData = {
             weather: data.weather[0].description,
-            temp: data.main.temp,
-            humidity: data.main.humidity
+            temp: temp,
+            humidity: humidity,
+            wbgt: wbgt.toFixed(1)
         }
 
         console.log("weather updated")

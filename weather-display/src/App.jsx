@@ -1,5 +1,6 @@
 import Weather from "./frontend/components/Weather";
 import Clock from "./frontend/components/Clock"
+import Wbgt from "./frontend/components/wbgt"
 import "./app.css"
 
 function app(){
@@ -14,9 +15,7 @@ function app(){
             <div className="dev Alert">
 
             </div>
-            <div className="dev info">
-
-            </div>
+            
         </>
     )
 }
