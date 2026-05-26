@@ -76,6 +76,10 @@ app.get("/api/alert",(req,res)=>{
                 })
             }
 
+            if(!row){
+                return res.json({ level: "none", message: "アラートなし" })
+            }
+
             res.json(row)
         }
 
@@ -85,6 +89,14 @@ app.get("/api/alert",(req,res)=>{
 app.post("/api/alert",(req,res)=>{
 
     const { message, level } = req.body
+    const alertMessageMap = {
+        special: "熱中症特別警戒アラート",
+        warning: "熱中症警戒アラート",
+        heat31: "日最高暑さ指数(予測値)31以上",
+        none: "アラートなし",
+    }
+
+    const alertMessage = message || alertMessageMap[level] || "アラートなし"
 
     db.run(
 
@@ -96,7 +108,7 @@ app.post("/api/alert",(req,res)=>{
         
         `,
 
-        [message,level],
+        [alertMessage, level],
 
         (err)=>{
 
