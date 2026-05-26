@@ -5,81 +5,28 @@ import Wbgt from "./wbgt"
 function Weather() {
   const [weather, setWeather] = useState(null)
   const [streaming, setStreaming] = useState(false)
-  const FETCH_URL = "http://localhost:3000/api/weather"
-  const STREAM_URL = "http://localhost:3000/api/weather/stream"
+  const FETCH_URL = "/api/weather"
+  const STREAM_URL = "/api/weather/stream"
   const POLL_INTERVAL = 10_000 
 
-  useEffect(() => {
-    let isMounted = true
-    let pollId = null
-    let es = null
+  useEffect(()=>{
 
-    const fetchOnce = async () => {
-      try {
-        const res = await fetch(FETCH_URL)
-        if (!res.ok) return
+    const fetchWeather = async ()=>{
+
+        const res = await fetch("/api/weather")
         const data = await res.json()
-        if (isMounted) setWeather(data)
-      } catch (e) {
-        console.error("fetch error", e)
-      }
+
+        setWeather(data)
+
     }
 
-    const startPolling = (interval = POLL_INTERVAL) => {
-      if (pollId) return
-      fetchOnce()
-      pollId = setInterval(fetchOnce, interval)
-      setStreaming(false)
-    }
+    fetchWeather()
 
-    const stopPolling = () => {
-      if (pollId) { clearInterval(pollId); pollId = null }
-    }
+    const interval = setInterval(fetchWeather,10000)
 
-    const startEventSource = () => {
-      try {
-        es = new EventSource(STREAM_URL)
-        es.onopen = () => {
-          setStreaming(true)
-        }
-        es.onmessage = (e) => {
-          try {
-            const data = JSON.parse(e.data)
-            if (isMounted) setWeather(data)
-          } catch (err) {
-            console.error("SSE JSON parse error", err)
-          }
-        }
-        es.onerror = (err) => {
-          console.warn("SSE error, falling back to polling", err)
-          if (es) { es.close(); es = null }
-          startPolling()
-        }
-      } catch (err) {
-        console.warn("EventSource not available, using polling", err)
-        startPolling()
-      }
-    }
+    return ()=>clearInterval(interval)
 
-    startEventSource()
-
-    const handleVisibility = () => {
-      if (document.hidden) {
-        if (es) { es.close(); es = null }
-        stopPolling()
-      } else {
-        startEventSource()
-      }
-    }
-    document.addEventListener("visibilitychange", handleVisibility)
-
-    return () => {
-      isMounted = false
-      document.removeEventListener("visibilitychange", handleVisibility)
-      if (es) { es.close(); es = null }
-      stopPolling()
-    }
-  }, [])
+},[])
 
   if (!weather) return <p>loading...</p>
 
