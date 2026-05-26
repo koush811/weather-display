@@ -6,6 +6,9 @@ const path = require("path")
 
 const app = express()
 
+const db = require("./db")
+const { error } = require("console")
+
 app.use(cors())
 app.use(express.json())
 
@@ -60,6 +63,65 @@ app.get("/api/weather", (req, res) => {
     res.json(weatherData)
     console.log("updated")
 
+})
+
+
+app.get("/api/alert",(req,res)=>{
+    db.get(
+        "SELECT * FROM alerts ORDER BY id DESC LIMIT 1",
+        (err,row)=>{
+            if(err){
+                return res.status(500).json({
+                    error: "DBエラー"
+                })
+            }
+
+            res.json(row)
+        }
+
+    )
+})
+
+app.post("/api/alert",(req,res)=>{
+
+    const { message, level } = req.body
+
+    db.run(
+
+        `
+        
+        INSERT INTO alerts(message,level)
+
+        VALUES(?,?)
+        
+        `,
+
+        [message,level],
+
+        (err)=>{
+
+            if(err){
+
+                return res.status(500).json({
+                    error:"insert error"
+                })
+
+            }
+
+            res.json({
+                success:true
+            })
+
+        }
+
+    )
+
+})
+
+const adminPath = path.join(__dirname, "../../admin.html")
+
+app.get("/admin", (req, res) => {
+  res.sendFile(adminPath)
 })
 
 const distPath = path.join(__dirname, "../../dist")
