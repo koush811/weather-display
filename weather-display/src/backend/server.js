@@ -3,151 +3,128 @@ require("dotenv").config()
 const express = require("express")
 const cors = require("cors")
 const path = require("path")
+const helmet = require("helmet")
+const rateLimit = require("express-rate-limit")
 
 const app = express()
-
 const db = require("./db")
-const { error } = require("console")
 
-app.use(cors())
-app.use(express.json())
+// ミドルウェア
+app.use(helmet())
+app.use(cors({ allowedHeaders: ["Content-Type", "X-Admin-Token"] }))
+app.use(express.json({ limit: "2kb" })) // ボディサイズ制限
 
-let weatherData = null
+// 管理 API 用レート制限
+const alertLimiter = rateLimit({
+  windowMs: 60_000, // 1分
+  max: 30, // 最大30リクエスト/分
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+app.use("/api/alert", alertLimiter)
 
-async function updateWeather() {
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || ""
 
-    try {
-
-        const apiKey = process.env.API_KEY
-        const city = "Nagoya"
-
-        const url =
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=ja`
-
-        const response = await fetch(url)
-        const data = await response.json()
-
-        const temp = data.main.temp
-        const humidity = data.main.humidity
-
-        const wbgt =
-            0.725 * temp +
-            0.0368 * humidity +
-            3.94
-
-        weatherData = {
-
-            weather: data.weather[0].description,
-            temp: temp,
-            humidity: humidity,
-            wbgt: wbgt.toFixed(1),
-
-        }
-
-        console.log("weather updated")
-
-    } catch (error) {
-
-        console.log(error)
-
-    }
-
+// トークン検証ミドルウェア
+function requireAdminToken(req, res, next) {
+  const token = req.headers["x-admin-token"] || req.query.token
+  if (!ADMIN_TOKEN || !token || token !== ADMIN_TOKEN) {
+    return res.status(403).json({ error: "Forbidden" })
+  }
+  next()
 }
 
-updateWeather()
+// 外部天気 API を呼ぶユーティリティ
+async function fetchWeatherData() {
+  const apikey = process.env.API_KEY
+  const city = "Nagoya"
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apikey}&units=metric&lang=ja`
 
-setInterval(updateWeather, 600000)
+  const response = await fetch(url)
+  const data = await response.json()
 
-app.get("/api/weather", (req, res) => {
+  if (!response.ok) {
+    throw new Error(data?.message || "weather fetch failed")
+  }
 
-    res.json(weatherData)
-    console.log("updated")
+  return {
+    weather: data.weather?.[0]?.description ?? "不明",
+    temp: data.main?.temp ?? null,
+    humidity: data.main?.humidity ?? null,
+    wbgt: null, // 必要なら計算して追加
+  }
+}
 
+// フロント向け天気エンドポイント
+app.get("/api/weather", requireAdminToken, async (req, res) => {
+  try {
+    const weather = await fetchWeatherData()
+    res.json(weather)
+  } catch (error) {
+    console.error("fetchWeatherData error:", error)
+    res.status(500).json({ error: "天気取得失敗" })
+  }
 })
 
-
-app.get("/api/alert",(req,res)=>{
-    db.get(
-        "SELECT * FROM alerts ORDER BY id DESC LIMIT 1",
-        (err,row)=>{
-            if(err){
-                return res.status(500).json({
-                    error: "DBエラー"
-                })
-            }
-
-            if(!row){
-                return res.json({ level: "none", message: "アラートなし" })
-            }
-
-            res.json(row)
-        }
-
-    )
+// 最新アラート取得
+app.get("/api/alert", requireAdminToken, (req, res) => {
+  db.get("SELECT * FROM alerts ORDER BY id DESC LIMIT 1", (err, row) => {
+    if (err) return res.status(500).json({ error: "DBエラー" })
+    if (!row) return res.json({ level: "none", message: "アラートなし" })
+    res.json(row)
+  })
 })
 
-app.post("/api/alert",(req,res)=>{
+// アラート登録（認証・Content-Type・サイズ・バリデーション済み）
+app.post("/api/alert", requireAdminToken, (req, res) => {
+  const ct = req.get("content-type") || ""
+  if (!ct.includes("application/json")) {
+    return res.status(400).json({ error: "Content-Type must be application/json" })
+  }
 
-    const { message, level } = req.body
-    const alertMessageMap = {
-        special: "熱中症特別警戒アラート",
-        warning: "熱中症警戒アラート",
-        heat31: "日最高暑さ指数(予測値)31以上",
-        none: "アラートなし",
+  const { level } = req.body
+  const allowed = ["special", "warning", "heat31", "none"]
+  if (typeof level !== "string" || !allowed.includes(level)) {
+    return res.status(400).json({ error: "invalid level" })
+  }
+
+  const labels = {
+    special: "熱中症特別警戒アラート",
+    warning: "熱中症警戒アラート",
+    heat31: "日最高暑さ指数(予測値)31以上",
+    none: "アラートなし",
+  }
+  const message = labels[level] || "アラートなし"
+
+  // audit log（トークンは出力しない）
+  console.info(`admin action: set alert -> ${level}`)
+
+  db.run(
+    `INSERT INTO alerts(message, level) VALUES(?, ?)`,
+    [message, level],
+    (err) => {
+      if (err) {
+        console.error("db insert error:", err)
+        return res.status(500).json({ error: "insert error" })
+      }
+      res.json({ success: true })
     }
-
-    const alertMessage = message || alertMessageMap[level] || "アラートなし"
-
-    db.run(
-
-        `
-        
-        INSERT INTO alerts(message,level)
-
-        VALUES(?,?)
-        
-        `,
-
-        [alertMessage, level],
-
-        (err)=>{
-
-            if(err){
-
-                return res.status(500).json({
-                    error:"insert error"
-                })
-
-            }
-
-            res.json({
-                success:true
-            })
-
-        }
-
-    )
-
+  )
 })
 
+// 管理画面（認証付き）
 const adminPath = path.join(__dirname, "../../admin.html")
-
-app.get("/admin", (req, res) => {
+app.get("/admin", requireAdminToken, (req, res) => {
   res.sendFile(adminPath)
 })
 
+// 静的配布（ビルド後）
 const distPath = path.join(__dirname, "../../dist")
-
 app.use(express.static(distPath))
-
 app.use((req, res) => {
-
-    res.sendFile(path.join(distPath, "index.html"))
-
+  res.sendFile(path.join(distPath, "index.html"))
 })
 
 app.listen(3000, () => {
-
-    console.log("start")
-
+  console.log("start")
 })

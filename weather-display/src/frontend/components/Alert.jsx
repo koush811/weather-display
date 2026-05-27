@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react"
 import "../components.css"
 
+
 function Alert() {
 	const [alertData, setAlertData] = useState(null)
 
 	useEffect(() => {
 		let isMounted = true
 
-		const fetchAlert = async () => {
+			const fetchAlert = async () => {
 			try {
-				const response = await fetch("/api/alert")
+					const response = await fetch("/api/alert")
 				if (!response.ok) return
 
 				const data = await response.json()

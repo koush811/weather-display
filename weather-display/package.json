@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },

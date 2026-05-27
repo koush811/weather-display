@@ -4,29 +4,23 @@ import Wbgt from "./wbgt"
 
 function Weather() {
   const [weather, setWeather] = useState(null)
-  const [streaming, setStreaming] = useState(false)
-  const FETCH_URL = "/api/weather"
-  const STREAM_URL = "/api/weather/stream"
-  const POLL_INTERVAL = 10_000 
 
-  useEffect(()=>{
-
-    const fetchWeather = async ()=>{
-
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
         const res = await fetch("/api/weather")
         const data = await res.json()
-
         setWeather(data)
-
+      } catch (error) {
+        console.error(error)
+      }
     }
 
     fetchWeather()
+    const interval = setInterval(fetchWeather, 10000)
 
-    const interval = setInterval(fetchWeather,10000)
-
-    return ()=>clearInterval(interval)
-
-},[])
+    return () => clearInterval(interval)
+  }, [])
 
   if (!weather) return <p>loading...</p>
 
@@ -39,7 +33,7 @@ function Weather() {
 
   return (
     <div className="content">
-      <h2>現在の名古屋市の天気 </h2>
+      <h2>現在の名古屋市の天気</h2>
       <div className="item weather">
         <p>天気</p>
         <h2>{weather.weather}</h2>
@@ -53,7 +47,7 @@ function Weather() {
         <h2>{weather.humidity}%</h2>
       </div>
 
-      <Wbgt wbgt={weather.wbgt}></Wbgt>
+      <Wbgt wbgt={weather.wbgt} />
     </div>
   )
 }
