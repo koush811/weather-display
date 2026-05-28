@@ -16,7 +16,6 @@ function app(){
             <div className="dev Alert">
                 <Alert></Alert>
             </div>
-            
         </>
     )
 }
