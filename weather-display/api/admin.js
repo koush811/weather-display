@@ -1,5 +1,123 @@
-import fs from "fs"
-import path from "path"
+const ADMIN_PAGE_HTML = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<title>熱中症対策 管理画面</title>
+	<style>
+		*{ box-sizing:border-box; margin:0; padding:0; }
+		body{ font-family:sans-serif; background:#f5f5f5; padding:40px; }
+		.container{ max-width:640px; margin:auto; background:#fff; padding:28px; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+		h1{ margin-bottom:24px; }
+		.form-group{ margin-bottom:20px; }
+		label{ display:block; margin-bottom:10px; font-weight:700; }
+		.token-group{ margin-bottom:20px; }
+		.token-group input{ width:100%; padding:12px 14px; border:1px solid #ccc; border-radius:10px; font-size:16px; }
+		.radio-list{ display:grid; gap:12px; }
+		.radio-item{ display:flex; align-items:center; gap:10px; padding:12px 14px; border:1px solid #ddd; border-radius:10px; background:#fafafa; }
+		.radio-item input{ width:18px; height:18px; }
+		.notice{ margin-bottom:16px; padding:12px 14px; border-radius:10px; background:#fff7e6; color:#8a5b00; line-height:1.5; }
+		.notice strong{ display:block; margin-bottom:6px; }
+		.small{ margin-top:6px; font-size:13px; color:#666; }
+		button{ width:100%; padding:14px; border:none; border-radius:8px; background:#ff5a5a; color:#fff; font-size:16px; cursor:pointer; }
+		button:hover{ opacity:0.9; }
+		button:disabled{ opacity:0.5; cursor:not-allowed; }
+		#result{ margin-top:20px; font-weight:bold; }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>管理者画面</h1>
+		<div class="notice" id="notice">
+			<strong>表示認証</strong>
+			この画面は <code>ADMINPAGE_TOKEN</code> で保護されています。
+			<div class="small">開くときは <code>/admin?token=ADMINPAGE_TOKEN</code> を使ってください。</div>
+		</div>
+
+		<div class="token-group">
+			<label for="sendToken">送信用トークン（ADMIN_TOKEN）</label>
+			<input id="sendToken" type="password" placeholder="ADMIN_TOKEN を入力" autocomplete="current-password" />
+			<div class="small">送信時のみ使います。表示用トークンとは別です。</div>
+		</div>
+
+		<div class="form-group">
+			<label>熱中症警戒アラート</label>
+			<div class="radio-list">
+				<label class="radio-item"><input type="radio" name="alert" value="special" checked /> 熱中症特別警戒アラート</label>
+				<label class="radio-item"><input type="radio" name="alert" value="warning" /> 熱中症警戒アラート</label>
+				<label class="radio-item"><input type="radio" name="alert" value="heat31" /> 日最高暑さ指数(予測値)31以上</label>
+				<label class="radio-item"><input type="radio" name="alert" value="none" /> アラートなし</label>
+			</div>
+		</div>
+
+		<button id="sendBtn" disabled>送信</button>
+		<div id="result"></div>
+	</div>
+
+	<script>
+		const sendBtn = document.getElementById("sendBtn")
+		const result = document.getElementById("result")
+		const sendTokenInput = document.getElementById("sendToken")
+
+		const params = new URLSearchParams(window.location.search)
+		const tokenFromUrl = params.get("token") || params.get("pageToken")
+		const tokenFromStorage = sessionStorage.getItem("adminSendToken") || ""
+
+		if (tokenFromUrl) {
+			window.history.replaceState({}, "", window.location.pathname)
+		}
+
+		sendTokenInput.value = tokenFromStorage
+
+		function updateSendState() {
+			const currentToken = sendTokenInput.value.trim()
+			sendBtn.disabled = currentToken.length === 0
+			if (!currentToken) {
+				result.textContent = "送信用トークンを入力してください"
+			} else {
+				result.textContent = "送信できます"
+				sessionStorage.setItem("adminSendToken", currentToken)
+			}
+		}
+
+		updateSendState()
+		sendTokenInput.addEventListener("input", updateSendState)
+
+		sendBtn.addEventListener("click", async () => {
+			const adminToken = sendTokenInput.value.trim()
+			if (!adminToken) {
+				result.textContent = "送信用トークンがありません"
+				return
+			}
+
+			const selected = document.querySelector('input[name="alert"]:checked')
+			const level = selected ? selected.value : "none"
+
+			try {
+				const response = await fetch("/api/alert", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"x-admin-token": adminToken
+					},
+					body: JSON.stringify({ level })
+				})
+
+				if (!response.ok) {
+					result.textContent = "送信失敗"
+					return
+				}
+
+				const data = await response.json()
+				result.textContent = data.success ? "送信成功" : "送信失敗"
+			} catch (error) {
+				console.error(error)
+				result.textContent = "送信失敗"
+			}
+		})
+	</script>
+</body>
+</html>`
 
 function getToken(req) {
   const headerToken = req.headers["x-adminpage-token"]
@@ -18,9 +136,6 @@ export default async function handler(req, res) {
     return res.status(403).send("Forbidden")
   }
 
-  const filePath = path.join(process.cwd(), "admin.html")
-  const html = fs.readFileSync(filePath, "utf8")
-
   res.setHeader("Content-Type", "text/html; charset=utf-8")
-  return res.status(200).send(html)
+  return res.status(200).send(ADMIN_PAGE_HTML)
 }
