@@ -11,10 +11,14 @@
 		h1{ margin-bottom:24px; }
 		.form-group{ margin-bottom:20px; }
 		label{ display:block; margin-bottom:10px; font-weight:700; }
+		.token-group{ margin-bottom:20px; }
+		.token-group input{ width:100%; padding:12px 14px; border:1px solid #ccc; border-radius:10px; font-size:16px; }
 		.radio-list{ display:grid; gap:12px; }
 		.radio-item{ display:flex; align-items:center; gap:10px; padding:12px 14px; border:1px solid #ddd; border-radius:10px; background:#fafafa; }
 		.radio-item input{ width:18px; height:18px; }
-		.notice{ margin-bottom:16px; padding:12px 14px; border-radius:10px; background:#fff7e6; color:#8a5b00; }
+		.notice{ margin-bottom:16px; padding:12px 14px; border-radius:10px; background:#fff7e6; color:#8a5b00; line-height:1.5; }
+		.notice strong{ display:block; margin-bottom:6px; }
+		.small{ margin-top:6px; font-size:13px; color:#666; }
 		button{ width:100%; padding:14px; border:none; border-radius:8px; background:#ff5a5a; color:#fff; font-size:16px; cursor:pointer; }
 		button:hover{ opacity:0.9; }
 		button:disabled{ opacity:0.5; cursor:not-allowed; }
@@ -24,7 +28,17 @@
 <body>
 	<div class="container">
 		<h1>管理者画面</h1>
-		<div class="notice" id="notice">トークンを URL で受け取ります: /admin?token=xxxxx</div>
+		<div class="notice" id="notice">
+			<strong>表示認証</strong>
+			この画面は <code>ADMINPAGE_TOKEN</code> で保護されています。
+			<div class="small">開くときは <code>/admin?token=ADMINPAGE_TOKEN</code> を使ってください。</div>
+		</div>
+
+		<div class="token-group">
+			<label for="sendToken">送信用トークン（ADMIN_TOKEN）</label>
+			<input id="sendToken" type="password" placeholder="ADMIN_TOKEN を入力" autocomplete="current-password" />
+			<div class="small">送信時のみ使います。表示用トークンとは別です。</div>
+		</div>
 
 		<div class="form-group">
 			<label>熱中症警戒アラート</label>
@@ -44,26 +58,39 @@
 		const sendBtn = document.getElementById("sendBtn")
 		const result = document.getElementById("result")
 		const notice = document.getElementById("notice")
+		const sendTokenInput = document.getElementById("sendToken")
 
 		const params = new URLSearchParams(window.location.search)
-		const tokenFromUrl = params.get("token")
-		const tokenFromStorage = sessionStorage.getItem("adminToken")
-		const adminToken = tokenFromUrl || tokenFromStorage
+		const tokenFromUrl = params.get("token") || params.get("pageToken")
+		const tokenFromStorage = sessionStorage.getItem("adminSendToken") || ""
 
 		if (tokenFromUrl) {
-			sessionStorage.setItem("adminToken", tokenFromUrl)
 			window.history.replaceState({}, "", window.location.pathname)
 		}
 
-		if (!adminToken) {
-			notice.textContent = "トークンがありません。 /admin?token=xxxxx で開いてください。"
-			result.textContent = "アクセスできません"
-		} else {
-			sendBtn.disabled = false
-			notice.textContent = "トークンを受け取りました。送信できます。"
+		sendTokenInput.value = tokenFromStorage
+
+		function updateSendState() {
+			const currentToken = sendTokenInput.value.trim()
+			sendBtn.disabled = currentToken.length === 0
+			if (!currentToken) {
+				result.textContent = "送信用トークンを入力してください"
+			} else {
+				result.textContent = "送信できます"
+				sessionStorage.setItem("adminSendToken", currentToken)
+			}
 		}
 
+		updateSendState()
+		sendTokenInput.addEventListener("input", updateSendState)
+
 		sendBtn.addEventListener("click", async () => {
+			const adminToken = sendTokenInput.value.trim()
+			if (!adminToken) {
+				result.textContent = "送信用トークンがありません"
+				return
+			}
+
 			const selected = document.querySelector('input[name="alert"]:checked')
 			const level = selected ? selected.value : "none"
 

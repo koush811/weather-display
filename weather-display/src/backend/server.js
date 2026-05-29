@@ -24,12 +24,21 @@ const alertLimiter = rateLimit({
 app.use("/api/alert", alertLimiter)
 
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || ""
+const ADMINPAGE_TOKEN = process.env.ADMINPAGE_TOKEN || ""
 
 // トークン検証ミドルウェア
 function requireAdminToken(req, res, next) {
   const token = req.headers["x-admin-token"] || req.query.token
   if (!ADMIN_TOKEN || !token || token !== ADMIN_TOKEN) {
     return res.status(403).json({ error: "Forbidden" })
+  }
+  next()
+}
+
+function requireAdminPageToken(req, res, next) {
+  const token = req.headers["x-adminpage-token"] || req.query.token || req.query.pageToken
+  if (!ADMINPAGE_TOKEN || !token || token !== ADMINPAGE_TOKEN) {
+    return res.status(403).send("Forbidden")
   }
   next()
 }
@@ -112,9 +121,9 @@ app.post("/api/alert", requireAdminToken, (req, res) => {
   )
 })
 
-// 管理画面（認証付き）
+// 管理画面（表示用トークンで認証）
 const adminPath = path.join(__dirname, "../../admin.html")
-app.get("/admin", requireAdminToken, (req, res) => {
+app.get("/admin", requireAdminPageToken, (req, res) => {
   res.sendFile(adminPath)
 })
 
