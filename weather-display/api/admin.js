@@ -1,5 +1,6 @@
 import fs from "fs"
 import path from "path"
+import { fileURLToPath } from "url"
 
 function getToken(req) {
   const headerToken = req.headers["x-adminpage-token"]
@@ -11,7 +12,7 @@ function getToken(req) {
 }
 
 function readAdminHtml() {
-  const filePath = path.join(process.cwd(), "admin.html")
+  const filePath = path.join(path.dirname(fileURLToPath(import.meta.url)), "admin.html")
   return fs.readFileSync(filePath, "utf8")
 }
 
