@@ -1,17 +1,17 @@
-require("dotenv").config()
-
 const express = require("express")
 const cors = require("cors")
 const path = require("path")
 const helmet = require("helmet")
 const rateLimit = require("express-rate-limit")
 
+require("dotenv").config({ path: path.join(__dirname, ".env") })
+
 const app = express()
 const db = require("./db")
 
 // ミドルウェア
 app.use(helmet())
-app.use(cors({ allowedHeaders: ["Content-Type", "X-Admin-Token"] }))
+app.use(cors({ allowedHeaders: ["Content-Type", "X-Admin-Token", "X-Admin-Page-Token"] }))
 app.use(express.json({ limit: "2kb" })) // ボディサイズ制限
 
 // 管理 API 用レート制限
@@ -121,9 +121,16 @@ app.post("/api/alert", requireAdminToken, (req, res) => {
   )
 })
 
-// 管理画面（表示用トークンで認証）
 const adminPath = path.join(__dirname, "../../admin.html")
-app.get("/admin", requireAdminPageToken, (req, res) => {
+// 管理画面の表示検証用エンドポイント (admin.jsがPOSTで検証する)
+app.post('/api/admin', (req, res) => {
+  const token = req.headers['x-adminpage-token'] || req.query.token || req.query.pageToken
+  if (!ADMINPAGE_TOKEN || !token || token !== ADMINPAGE_TOKEN) {
+    return res.status(403).json({ error: 'Forbidden' })
+  }
+  res.json({ ok: true })
+})
+app.get("/admin", (req, res) => {
   res.sendFile(adminPath)
 })
 
