@@ -36,7 +36,7 @@
                     'content-type': 'application/json',
                     'x-admin-token': token,
                 },
-                body: JSON.stringify({ type: alertType }),
+                body: JSON.stringify({ level: alertType }),
             });
             return res;
         } catch (e) {
