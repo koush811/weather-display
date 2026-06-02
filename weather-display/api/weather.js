@@ -10,7 +10,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "API_KEY is not configured" })
     }
 
-    const city = typeof req.query.city === "string" ? req.query.city : "Nagoya"
+    const city = "Nagoya"
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=ja`
 
     const response = await fetch(url)
@@ -28,6 +28,9 @@ export default async function handler(req, res) {
       typeof temp === "number" && typeof humidity === "number"
         ? 0.725 * temp + 0.0368 * humidity + 3.94
         : null
+
+    res.setHeader("Cache-Control", "public, s-maxage=600, stale-while-revalidate=60")
+    res.setHeader("CDN-Cache-Control", "public, s-maxage=600, stale-while-revalidate=60")
 
     return res.status(200).json({
       weather: data.weather?.[0]?.description ?? "不明",

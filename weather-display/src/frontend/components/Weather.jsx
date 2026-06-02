@@ -17,19 +17,12 @@ function Weather() {
     }
 
     fetchWeather()
-    const interval = setInterval(fetchWeather, 10000)
+    const interval = setInterval(fetchWeather, 60000)
 
     return () => clearInterval(interval)
   }, [])
 
   if (!weather) return <p>loading...</p>
-
-  const temp = weather.temp
-  let tempColor = "#ffffff"
-  if (temp >= 35) tempColor = "#5e0300"
-  else if (temp >= 30) tempColor = "red"
-  else if (temp >= 25) tempColor = "yellow"
-  else if (temp >= 20) tempColor = "#00ca0a"
 
   return (
     <div className="content">
@@ -40,7 +33,7 @@ function Weather() {
       </div>
       <div className="item kionn">
         <p>気温</p>
-        <h2 style={{ color: tempColor }}>{weather.temp}°C</h2>
+        <h2>{weather.temp}°C</h2>
       </div>
       <div className="item situdo">
         <p>湿度</p>
