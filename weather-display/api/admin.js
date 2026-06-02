@@ -1,7 +1,3 @@
-import fs from "fs"
-import path from "path"
-import { fileURLToPath } from "url"
-
 function getToken(req) {
   const headerToken = req.headers["x-adminpage-token"]
   if (Array.isArray(headerToken)) {
@@ -9,11 +5,6 @@ function getToken(req) {
   }
 
   return headerToken || req.query.token || req.query.pageToken || ""
-}
-
-function readAdminHtml() {
-  const filePath = path.join(path.dirname(fileURLToPath(import.meta.url)), "admin.html")
-  return fs.readFileSync(filePath, "utf8")
 }
 
 export default async function handler(req, res) {
@@ -29,8 +20,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "GET") {
-    res.setHeader("Content-Type", "text/html; charset=utf-8")
-    return res.status(200).send(readAdminHtml())
+    return res.redirect(302, "/admin/index.html")
   }
 
   res.setHeader("Allow", "GET, POST")
