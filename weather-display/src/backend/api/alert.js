@@ -1,4 +1,4 @@
-const db = require("../db")
+/*const db = require("../db")
 
 const ALERT_LABELS = {
 	special: "熱中症特別警戒アラート",
@@ -76,3 +76,4 @@ module.exports = async (req, res) => {
 	res.setHeader("Allow", "GET, POST")
 	return res.status(405).json({ error: "Method Not Allowed" })
 }
+*/

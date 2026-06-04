@@ -81,6 +81,13 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     const row = await getAlertFromStore()
 
+    // CDN/edge cache: short TTL so polls hit CDN, not origin.
+    // s-maxage is seconds to cache at shared caches (CDN/edge).
+    // stale-while-revalidate allows serving stale while revalidating in background.
+    const cacheHeader = "public, s-maxage=5, stale-while-revalidate=10"
+    res.setHeader("Cache-Control", cacheHeader)
+    res.setHeader("CDN-Cache-Control", cacheHeader)
+
     if (!row) {
       return res.status(200).json({
         level: "none",

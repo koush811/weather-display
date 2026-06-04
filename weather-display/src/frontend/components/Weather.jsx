@@ -13,7 +13,7 @@ function Weather() {
         setWeather(data)
       } catch (error) {
         console.error(error)
-      }
+      } 
     }
 
     fetchWeather()
