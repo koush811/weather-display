@@ -4,7 +4,9 @@ function Table(){
     return(
         <>
            <table>
+            <div className="content">
                 <h2>暑さ指数（WBGT）</h2>
+            </div>
                 <tr>
                     <th>暑さ指数（WBGT）</th>
                     <th>注意すべき生活活動の目安</th>
