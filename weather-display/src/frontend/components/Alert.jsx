@@ -21,7 +21,7 @@ function Alert() {
 		}
 
 		fetchAlert()
-		const intervalId = setInterval(fetchAlert, 30000)
+		const intervalId = setInterval(fetchAlert, 60000)
 
 		return () => {
 			isMounted = false

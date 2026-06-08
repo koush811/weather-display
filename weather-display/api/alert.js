@@ -84,7 +84,7 @@ export default async function handler(req, res) {
     // CDN/edge cache: short TTL so polls hit CDN, not origin.
     // s-maxage is seconds to cache at shared caches (CDN/edge).
     // stale-while-revalidate allows serving stale while revalidating in background.
-    const cacheHeader = "public, s-maxage=60, stale-while-revalidate=300"
+    const cacheHeader = "public, s-maxage=300, stale-while-revalidate=300"
     res.setHeader("Cache-Control", cacheHeader)
     res.setHeader("CDN-Cache-Control", cacheHeader)
 
