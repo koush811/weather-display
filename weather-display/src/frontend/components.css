@@ -30,5 +30,38 @@ h2,p{
     border-radius: 10px;
 }
 
+th{
+  background-color: rgb(255, 222, 112);
+}
+
+table{
+  background-color: white;
+  border-collapse: collapse;
+}
+
+td,th{
+  color: black;
+  border:  solid 1px black;
+}
+
+.kiken{
+  background-color: red;
+  color: white;
+}
+
+.genjyu{
+  background-color: orange;
+}
+
+.keikai{
+  background-color: yellow;
+}
+
+.tyuui{
+  background-color: rgb(0, 247, 255);
+}
+
+
+
 
 
