@@ -17,7 +17,7 @@ function Wbgt({wbgt}){
         color = "orange"
     }else if(wbgt >= 21){
         text = "注意"
-        color = "yellow"
+        color = "#ffd900"
     }else{
         text = "安全"
         color ="green"

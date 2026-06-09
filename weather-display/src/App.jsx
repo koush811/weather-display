@@ -8,6 +8,11 @@ import "./app.css"
 function app(){
     return(
         <>
+           <header>
+            <img src="\src\frontend\imgs\image.png" alt="" />
+            <p>愛知総合工科高校保健委員会</p>
+            
+           </header>
             <div className="dev weather">
                 <Weather></Weather>
             </div>
