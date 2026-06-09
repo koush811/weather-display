@@ -4,26 +4,27 @@ import Alert from "./frontend/components/Alert"
 import Wbgt from "./frontend/components/wbgt"
 import Table from "./frontend/components/table";
 import "./app.css"
+import logo from"./frontend/imgs/image.png"
 
 function app(){
     return(
         <>
            <header>
-            <img src="\src\frontend\imgs\image.png" alt="" />
+            <img src={logo} alt="" />
             <p>愛知総合工科高校保健委員会</p>
             
            </header>
             <div className="dev weather">
-                <Weather></Weather>
+                <Weather />
             </div>
             <div className="dev clock">
-                <Clock></Clock>
+                <Clock/>
             </div>
             <div className="dev Alert">
-                <Alert></Alert>
+                <Alert/>
             </div>
             <div className="dev">
-                <Table></Table>
+                <Table/>
             </div>
         </>
     )

@@ -84,6 +84,5 @@
         sendBtn.disabled = sendTokenEl.value.trim() === '';
     });
 
-    // 初期表示
     showLogin();
 })();
