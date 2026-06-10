@@ -7,6 +7,7 @@ body{
     margin: 0;
     padding: 0;
     height: 100vh;
+    font-family: sans-serif;
 }
 
 #root{
@@ -49,6 +50,10 @@ header img{
     width: 30%;
 }
 
+header h3{
+    font-weight: 500;
+}
+
 @media screen and (max-width: 900px){
     #root{
         display: flex;
@@ -58,7 +63,7 @@ header img{
         justify-content: center;
         gap: 20px;
     }
-    header p{
+    header h3{
         font-size: 70%;
     }
 }

@@ -11,7 +11,7 @@ function app(){
         <>
            <header>
             <img src={logo} alt="" />
-            <p>愛知総合工科高校保健委員会</p>
+            <h3>愛知総合工科高校保健委員会</h3>
             
            </header>
             <div className="dev weather">
