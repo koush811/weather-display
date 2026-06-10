@@ -7,20 +7,20 @@ function Wbgt({wbgt}){
 
     if(wbgt >= 31){
         text = "危険"
-        color = "8B0000"
+        color = "red"
     }else if(wbgt >= 28){
         text = "厳重警戒"
-        color = "red"
+        color = "orange"
     }
     else if(wbgt >= 25){
         text = "警戒"
-        color = "orange"
+        color = "#ffe600"
     }else if(wbgt >= 21){
         text = "注意"
-        color = "#ffd900"
+        color = "#00a9d3"
     }else{
         text = "安全"
-        color ="green"
+        color ="#00ff15"
     }
 
     return (

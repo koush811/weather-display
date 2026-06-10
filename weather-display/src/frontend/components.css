@@ -14,7 +14,7 @@ h2,p{
 }
 
 .item{
-    background-color: rgb(216, 216, 216);
+    background-color: rgb(240, 240, 240);
     border-radius: 10px;
     display: flex;
     flex-direction: column;
@@ -25,7 +25,7 @@ h2,p{
 }
 
 .clock{
-    background-color: rgb(216, 216, 216);
+    background-color: rgb(240, 240, 240);
     box-shadow: rgb(189, 189, 189) 2px 2px 2px;
     border-radius: 10px;
 }
