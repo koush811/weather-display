@@ -38,7 +38,7 @@ header{
     top: 0;
     left: 0;
     display: flex;
-    padding: 20px 30px;
+    padding: 5px 30px;
     align-items: center;
     height: 60px;
     overflow: hidden;
@@ -47,7 +47,9 @@ header{
 }
 
 header img{
-    width: 30%;
+    max-width: 20%;
+    max-height: 80%;
+    height: auto;
 }
 
 header h3{
@@ -62,8 +64,12 @@ header h3{
     header{
         justify-content: center;
         gap: 20px;
+        padding: 0px 30px;
     }
     header h3{
         font-size: 70%;
+    }
+    header img{
+        max-width: 40%;
     }
 }
