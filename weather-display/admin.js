@@ -1,4 +1,4 @@
-(function () {
+/*(function () {
     console.log("weather-display/admin.js")
     function qs(sel, root = document) { return root.querySelector(sel); }
 
@@ -88,3 +88,4 @@
     // 初期表示
     showLogin();
 })();
+*/
