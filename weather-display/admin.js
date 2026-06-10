@@ -1,4 +1,5 @@
 (function () {
+    console.log("weather-display/admin.js")
     function qs(sel, root = document) { return root.querySelector(sel); }
 
     const loginView = qs('#loginView');
