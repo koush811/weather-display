@@ -1,57 +1,59 @@
 import { useEffect, useState } from "react"
 import "../components.css"
 
-
 function Alert() {
-	const [alertData, setAlertData] = useState(null)
+    const [alertMessage, setAlertMessage] = useState(null)
+    const [error, setError] = useState(false)
 
-	useEffect(() => {
-		let isMounted = true
+    useEffect(() => {
+        let isMounted = true
 
-			const fetchAlert = async () => {
-			try {
-					const response = await fetch("/api/alert")
-				if (!response.ok) return
+        const fetchAlert = async () => {
+            try {
+                const response = await fetch("/api/heat")
 
-				const data = await response.json()
-				if (isMounted) setAlertData(data)
-			} catch (error) {
-				console.error(error)
-			}
-		}
+                if (!response.ok) {
+                    throw new Error("heat api error")
+                }
 
-		fetchAlert()
-		const intervalId = setInterval(fetchAlert, 60000)
+                const data = await response.json()
 
-		return () => {
-			isMounted = false
-			clearInterval(intervalId)
-		}
-	}, [])
+                console.log("Heat API:", data)
 
-	if (!alertData) {
-		return (
-			<div className="item alert">
-				<h2>熱中症警戒アラート</h2>
-				<p>読み込み中...</p>
-			</div>
-		)
-	}
+                if (isMounted) {
+                    setAlertMessage(data.alertMessage)
+                    setError(false)
+                }
+            } catch (error) {
+                console.error(error)
 
-	const levelText = {
-		special: "熱中症特別警戒アラート",
-		warning: "熱中症警戒アラート",
-		heat31: "日最高暑さ指数(予測値)31以上",
-		none: "アラートなし",
-	}
+                if (isMounted) {
+                    setError(true)
+                }
+            }
+        }
 
-	return (
-		<div className="item alert">
-			<h2>熱中症警戒アラート</h2>
-			<h3>{levelText[alertData.level] ?? "アラートなし"}</h3>
-		</div>
-	)
+        fetchAlert()
+
+        const intervalId = setInterval(fetchAlert, 600000)
+
+        return () => {
+            isMounted = false
+            clearInterval(intervalId)
+        }
+    }, [])
+
+    return (
+        <div className="item alert">
+            <h2>熱中症警戒アラート</h2>
+
+            {error ? (
+                <h3>データなし</h3>
+            ) : (
+                <h3>{alertMessage ?? "読み込み中..."}</h3>
+            )}
+        </div>
+    )
 }
 
 export default Alert
-
