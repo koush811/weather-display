@@ -1,37 +1,28 @@
-import { useEffect, useState } from "react"
 import "../components.css"
 
-function Weather() {
-  const [weather, setWeather] = useState(null)
-
-  useEffect(() => {
-    const fetchWeather = async () => {
-      try {
-        const res = await fetch("/api/weather")
-
-        if (!res.ok) {
-          throw new Error("weather api error")
-        }
-
-        const data = await res.json()
-
-        console.log("Weather API:", data)
-
-        setWeather(data)
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    fetchWeather()
-
-    const interval = setInterval(fetchWeather, 600000)
-
-    return () => clearInterval(interval)
-  }, [])
-
+function Weather({ weather, heat }) {
   if (!weather) {
     return <p>loading...</p>
+  }
+
+  let wbgtText = ""
+  let wbgtColor = ""
+
+  if (heat?.currentWbgt >= 31) {
+    wbgtText = "危険"
+    wbgtColor = "red"
+  } else if (heat?.currentWbgt >= 28) {
+    wbgtText = "厳重警戒"
+    wbgtColor = "orange"
+  } else if (heat?.currentWbgt >= 25) {
+    wbgtText = "警戒"
+    wbgtColor = "#ffe600"
+  } else if (heat?.currentWbgt >= 21) {
+    wbgtText = "注意"
+    wbgtColor = "#00a9d3"
+  } else {
+    wbgtText = "安全"
+    wbgtColor = "#00ff15"
   }
 
   return (
@@ -52,6 +43,24 @@ function Weather() {
         <p>湿度</p>
         <h2>{weather.humidity}%</h2>
       </div>
+
+      {heat && (
+        <div className="item wbgt">
+          <h2>WBGT</h2>
+          {heat?.currentWbgt !== null ? (
+            <>
+              <h2 style={{ color: wbgtColor }}>
+                {heat.currentWbgt}
+              </h2>
+              <h3 style={{ color: wbgtColor }}>
+                {wbgtText}
+              </h3>
+            </>
+          ) : (
+            <h3>データなし</h3>
+          )}
+        </div>
+      )}
     </div>
   )
 }
