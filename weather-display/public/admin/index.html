@@ -117,17 +117,15 @@
                 <input id="sendToken" type="password" autocomplete="current-password" />
             </div>
 
-            <div class="form-group">
-                <label>熱中症警戒アラート</label>
-                <div class="radio-list">
-                    <label class="radio-item"><input type="radio" name="alert" value="special" checked /> 熱中症特別警戒アラート</label>
-                    <label class="radio-item"><input type="radio" name="alert" value="warning" /> 熱中症警戒アラート</label>
-                    <label class="radio-item"><input type="radio" name="alert" value="heat31" /> 日最高暑さ指数(予測値)31以上</label>
-                    <label class="radio-item"><input type="radio" name="alert" value="none" /> アラートなし</label>
-                </div>
-            </div>
+            <input
+                type="file"
+                accept=".pdf,.png,.jpg,.jpeg"
+            />
 
-            <button id="sendBtn" disabled>送信</button>
+            <button id="sendBtn" disabled>
+                アップロード
+            </button>
+
             <div id="result"></div>
         </div>
     </div>

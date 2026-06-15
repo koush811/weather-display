@@ -5,6 +5,7 @@ import Alert from "./frontend/components/Alert"
 import Table from "./frontend/components/table"
 import "./app.css"
 import logo from "./frontend/imgs/image.png"
+import File from "./frontend/components/file"
 
 function App() {
   const [weather, setWeather] = useState(null)
@@ -92,6 +93,9 @@ function App() {
           </div>
         </>
       )}
+      <div className="dev">
+        <File />
+      </div>
     </>
   )
 }
