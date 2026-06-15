@@ -47,7 +47,7 @@
             headers: {
                 "Content-Type": file.type,
                 "x-adminpage-token": adminToken,
-                "x-file-name": file.name,
+                "x-file-name": encodeURIComponent(file.name),
             },
             body: file,
         });
@@ -87,18 +87,18 @@
         try {
             const res = await uploadFile(file);
 
-            if (res.ok) {
-                const data = await res.json();
+            const data = await res.json();
 
+            if (res.ok) {
                 console.log("upload success", data);
 
                 resultEl.textContent =
                     "アップロード完了 : " + file.name;
-            } else if (res.status === 403) {
-                resultEl.textContent = "認証エラー";
             } else {
+                console.error(data);
+
                 resultEl.textContent =
-                    "エラー : " + res.status;
+                    "エラー : " + (data.error || res.status);
             }
         } catch (e) {
             console.error(e);
