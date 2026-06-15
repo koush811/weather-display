@@ -20,9 +20,13 @@ export default async function handler(req, res) {
       req.headers["x-file-name"] || "file"
     );
 
-    const blob = await put(filename, req, {
-      access: "public",
-    });
+    const blob = await put(
+        `uploads/${filename}`,
+        req,
+    {
+        access: "public",
+    }
+    )
 
     return res.status(200).json(blob);
   } catch (err) {
