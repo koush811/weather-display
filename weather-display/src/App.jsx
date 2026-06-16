@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import Weather from "./frontend/components/Weather"
-import Clock from "./frontend/components/Clock"
 import Alert from "./frontend/components/Alert"
 import Table from "./frontend/components/table"
 import "./app.css"
