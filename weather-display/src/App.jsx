@@ -78,10 +78,6 @@ function App() {
         <Weather weather={weather} heat={heat} />
       </div>
 
-      <div className="dev clock">
-        <Clock />
-      </div>
-
       {isHeatSeason() && (
         <>
           <div className="dev Alert">

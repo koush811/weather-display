@@ -24,12 +24,6 @@ h2,p{
     box-shadow: rgb(189, 189, 189) 2px 2px 2px;
 }
 
-.clock{
-    background-color: rgb(240, 240, 240);
-    box-shadow: rgb(189, 189, 189) 2px 2px 2px;
-    border-radius: 10px;
-}
-
 
 th{
   background-color: rgb(255, 222, 112);
