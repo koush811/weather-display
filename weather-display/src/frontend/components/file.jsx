@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import "../components.css"
 
 function File() {
   const [file, setFile] = useState(null)
@@ -43,7 +44,7 @@ function File() {
       {isPdf ? (
         <iframe
           src={file.url}
-          width="100%"
+          width="90%"
           height="800"
           title="pdf"
         />
@@ -52,7 +53,7 @@ function File() {
           src={file.url}
           alt=""
           style={{
-            width: "100%",
+            width: "90%",
             maxWidth: "1000px",
           }}
         />

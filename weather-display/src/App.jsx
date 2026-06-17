@@ -17,7 +17,6 @@ function App() {
     const day = now.getDate()
 
     if (month < 4 || month > 10) return false
-
     if (month === 4 && day < 22) return false
     if (month === 10 && day > 21) return false
 
