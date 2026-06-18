@@ -15,8 +15,10 @@ function File() {
         }
 
         const data = await res.json()
-        setFile(data)
 
+        console.log("file data:", data)
+
+        setFile(data)
       } catch (err) {
         console.error(err)
       }
@@ -35,7 +37,7 @@ function File() {
   }
 
   const isPdf =
-    file.contentType === "application/pdf"
+    file.pathname?.toLowerCase().endsWith(".pdf")
 
   return (
     <div className="item">
@@ -47,11 +49,14 @@ function File() {
           width="90%"
           height="800"
           title="pdf"
+          style={{
+            border: "none",
+          }}
         />
       ) : (
         <img
           src={file.url}
-          alt=""
+          alt="uploaded file"
           style={{
             width: "90%",
             maxWidth: "1000px",
