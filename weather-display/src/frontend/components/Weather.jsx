@@ -61,6 +61,7 @@ function Weather({ weather, heat }) {
           )}
         </div>
       )}
+      <p>出典：環境省熱中症予防情報サイト</p>
     </div>
   )
 }
