@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     const { blobs } = await list({
       prefix: "uploads/",
     })
-
+    
     if (!blobs.length) {
       return res.status(404).json({
         error: "file not found",
@@ -15,8 +15,10 @@ export default async function handler(req, res) {
     const latest = blobs.sort(
       (a, b) =>
         new Date(b.uploadedAt) -
-        new Date(a.uploadedAt)
+      new Date(a.uploadedAt)
     )[0]
+    
+    console.log(latest)
 
     return res.status(200).json({
       url: latest.url,
@@ -25,7 +27,6 @@ export default async function handler(req, res) {
       uploadedAt: latest.uploadedAt,
     })
 
-    console.log(latest)
 
   } catch (err) {
     console.error(err)
