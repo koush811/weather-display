@@ -25,6 +25,8 @@ export default async function handler(req, res) {
       uploadedAt: latest.uploadedAt,
     })
 
+    console.log(latest)
+
   } catch (err) {
     console.error(err)
     return res.status(500).json({
