@@ -24,6 +24,7 @@ async function kvCommand(path) {
   }
 
   return response.json()
+  
 }
 
 async function getAlertFromStore() {

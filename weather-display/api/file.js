@@ -1,7 +1,18 @@
 import { list } from "@vercel/blob"
 
 export default async function handler(req, res) {
+
   try {
+    res.setHeader(
+      "Cache-Control",
+      "public, s-maxage=300, stale-while-revalidate=300"
+    )
+
+    res.setHeader(
+      "CDN-Cache-Control",
+      "public, s-maxage=300, stale-while-revalidate=300"
+    )
+
     const { blobs } = await list({
       prefix: "uploads/",
     })
@@ -15,8 +26,8 @@ export default async function handler(req, res) {
     const latest = blobs.sort(
       (a, b) =>
         new Date(b.uploadedAt) -
-      new Date(a.uploadedAt)
-    )[0]
+        new Date(a.uploadedAt)
+      )[0]
     
     console.log(latest)
 
