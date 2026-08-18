@@ -11,7 +11,7 @@ const db = require("./db")
 
 // ミドルウェア
 app.use(helmet())
-app.use(cors({ allowedHeaders: ["Content-Type", "X-Admin-Token", "X-Admin-Page-Token"] }))
+app.use(cors({ allowedHeaders: ["Content-Type", "X-Admin-Token"] }))
 app.use(express.json({ limit: "2kb" })) // ボディサイズ制限
 
 // 管理 API 用レート制限
@@ -24,21 +24,12 @@ const alertLimiter = rateLimit({
 app.use("/api/alert", alertLimiter)
 
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || ""
-const ADMINPAGE_TOKEN = process.env.ADMINPAGE_TOKEN || ""
 
 // トークン検証ミドルウェア
 function requireAdminToken(req, res, next) {
   const token = req.headers["x-admin-token"] || req.query.token
   if (!ADMIN_TOKEN || !token || token !== ADMIN_TOKEN) {
     return res.status(403).json({ error: "Forbidden" })
-  }
-  next()
-}
-
-function requireAdminPageToken(req, res, next) {
-  const token = req.headers["x-adminpage-token"] || req.query.token || req.query.pageToken
-  if (!ADMINPAGE_TOKEN || !token || token !== ADMINPAGE_TOKEN) {
-    return res.status(403).send("Forbidden")
   }
   next()
 }
@@ -119,19 +110,6 @@ app.post("/api/alert", requireAdminToken, (req, res) => {
       res.json({ success: true })
     }
   )
-})
-
-const adminPath = path.join(__dirname, "../../admin.html")
-// 管理画面の表示検証用エンドポイント (admin.jsがPOSTで検証する)
-app.post('/api/admin', (req, res) => {
-  const token = req.headers['x-adminpage-token'] || req.query.token || req.query.pageToken
-  if (!ADMINPAGE_TOKEN || !token || token !== ADMINPAGE_TOKEN) {
-    return res.status(403).json({ error: 'Forbidden' })
-  }
-  res.json({ ok: true })
-})
-app.get("/admin", (req, res) => {
-  res.sendFile(adminPath)
 })
 
 // 静的配布（ビルド後）
